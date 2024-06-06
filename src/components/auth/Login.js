@@ -19,14 +19,14 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Swal from 'sweetalert2';
-import './Login.css'; // Import the CSS file
+import './Login.css';
 
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="https://mui.com/">
-        Your Website
+        Microfinanzas Lending P2P
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -204,7 +204,7 @@ export default function Login() {
                 <Link
                   href="#"
                   variant="body2"
-                  className="register-link" // Add a class name
+                  className="register-link"
                   onClick={(e) => {
                     e.preventDefault();
                     navigate('/register');

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,6 +16,7 @@ import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { MetaMaskContext } from '../../context/MetaMaskContext';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 function Copyright(props) {
   return (
@@ -44,7 +45,8 @@ export default function Register() {
     password: ''
   };
   const [formValues, setFormValues] = useState(initialFormValues);
-  const [isConnecting, setIsConnecting] = useState(false); // Estado para controlar la conexión
+  const [isConnecting, setIsConnecting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -99,21 +101,13 @@ export default function Register() {
     setFieldErrors({});
 
     try {
-      // Confirmación de conexión a MetaMask
-      let walletAddress = account;
-      if (!walletAddress && !isConnecting) {
-        setIsConnecting(true);
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length === 0) {
-          throw new Error('No accounts found');
-        }
-        walletAddress = accounts[0];
-        setIsConnecting(false);
+      setIsConnecting(true);
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      setIsConnecting(false);
+      if (accounts.length === 0) {
+        throw new Error('No accounts found');
       }
-
-      if (!walletAddress) {
-        throw new Error('Failed to connect to MetaMask');
-      }
+      const walletAddress = accounts[0];
 
       const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
@@ -257,13 +251,17 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isConnecting} // Deshabilitar botón mientras se conecta MetaMask
+              disabled={isConnecting} 
             >
               {isConnecting ? 'Conectando MetaMask...' : 'Registrar'}
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="#" variant="body2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/login');
+                  }}>
                   ¿Ya tienes una cuenta? Ingresar
                 </Link>
               </Grid>
@@ -276,3 +274,4 @@ export default function Register() {
     </ThemeProvider>
   );
 }
+
