@@ -1,33 +1,37 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { initWeb3 } from '../services/blockchain';
+import Web3 from 'web3';
 
 export const MetaMaskContext = createContext();
 
 export const MetaMaskProvider = ({ children }) => {
   const [account, setAccount] = useState(null);
-
-  useEffect(() => {
-    const connectedAccount = localStorage.getItem('connectedAccount');
-    if (connectedAccount) {
-      setAccount(connectedAccount);
-    }
-  }, []);
+  const [web3, setWeb3] = useState(null);
 
   const connectToMetaMask = async () => {
-    try {
-      const { web3 } = await initWeb3();
-      const accounts = await web3.eth.getAccounts();
-      const userAccount = accounts[0];
-      setAccount(userAccount);
-      localStorage.setItem('connectedAccount', userAccount);
-    } catch (error) {
-      console.error("MetaMask connection error:", error);
-      throw new Error('Could not connect to MetaMask');
+    if (window.ethereum) {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setAccount(accounts[0]);
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+      } catch (error) {
+        console.error('MetaMask connection error', error);
+      }
+    } else {
+      console.error('MetaMask is not installed');
     }
   };
 
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        setAccount(accounts[0] || null);
+      });
+    }
+  }, []);
+
   return (
-    <MetaMaskContext.Provider value={{ account, connectToMetaMask }}>
+    <MetaMaskContext.Provider value={{ account, connectToMetaMask, web3 }}>
       {children}
     </MetaMaskContext.Provider>
   );

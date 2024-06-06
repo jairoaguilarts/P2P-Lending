@@ -15,7 +15,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { MetaMaskContext } from '../../context/MetaMaskContext';
-import { initWeb3 } from '../../services/blockchain';
 import Swal from 'sweetalert2';
 
 function Copyright(props) {
@@ -38,12 +37,14 @@ export default function Register() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [formValues, setFormValues] = useState({
+  const initialFormValues = {
     firstName: '',
     lastName: '',
     email: '',
     password: ''
-  });
+  };
+  const [formValues, setFormValues] = useState(initialFormValues);
+  const [isConnecting, setIsConnecting] = useState(false); // Estado para controlar la conexión
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -77,7 +78,6 @@ export default function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { firstName, lastName, email, password } = formValues;
-    const creditScore = 0;
 
     const errors = {};
     if (!firstName) errors.firstName = true;
@@ -99,30 +99,49 @@ export default function Register() {
     setFieldErrors({});
 
     try {
-      if (!account) {
-        await connectToMetaMask();
+      // Confirmación de conexión a MetaMask
+      let walletAddress = account;
+      if (!walletAddress && !isConnecting) {
+        setIsConnecting(true);
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts.length === 0) {
+          throw new Error('No accounts found');
+        }
+        walletAddress = accounts[0];
+        setIsConnecting(false);
       }
 
-      const { userManagement, web3 } = await initWeb3();
-      if (!userManagement) {
-        throw new Error('UserManagement contract is not initialized');
+      if (!walletAddress) {
+        throw new Error('Failed to connect to MetaMask');
       }
 
-      const gasPrice = await web3.eth.getGasPrice();
-      const gasEstimate = await userManagement.methods.registerUser(firstName, lastName, email, password, creditScore).estimateGas({ from: account });
-
-      await userManagement.methods.registerUser(firstName, lastName, email, password, creditScore).send({
-        from: account,
-        gas: gasEstimate,
-        gasPrice: gasPrice
+      const response = await fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+          walletAddress,
+        }),
       });
 
-      Swal.fire({
-        title: '¡Éxito!',
-        text: '¡Usuario registrado exitosamente!',
-        icon: 'success',
-        confirmButtonText: 'OK'
-      });
+      if (response.ok) {
+        Swal.fire({
+          title: '¡Éxito!',
+          text: '¡Usuario registrado exitosamente!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        // Limpiar campos del formulario después del registro exitoso
+        setFormValues(initialFormValues);
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al registrar el usuario');
+      }
     } catch (e) {
       console.error("Registration error:", e);
       setError(`Registration failed: ${e.message}`);
@@ -238,8 +257,9 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isConnecting} // Deshabilitar botón mientras se conecta MetaMask
             >
-              Registrar
+              {isConnecting ? 'Conectando MetaMask...' : 'Registrar'}
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
