@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { web3 } from '../../services/blockchain';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -93,21 +92,32 @@ export default function Login() {
     setFieldErrors({});
 
     try {
-      const accounts = await web3.eth.getAccounts();
-      const isValidUser = await mockAuthenticate(email, password);
-      if (isValidUser) {
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        Swal.fire({
+          title: '¡Éxito!',
+          text: '¡Inicio de sesión exitoso!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
         navigate('/dashboard');
       } else {
-        setError('Invalid email or password');
+        const data = await response.json();
+        console.log(data.error);
+        setError(data.error || 'Correo o contraseña incorrecto');
       }
     } catch (e) {
       console.error("Login error:", e);
-      setError('An error occurred during login');
+      setError('Error al realizar login');
     }
-  };
-
-  const mockAuthenticate = async (email, password) => {
-    return email === 'test@example.com' && password === 'password123';
   };
 
   const handleClickShowPassword = () => {
