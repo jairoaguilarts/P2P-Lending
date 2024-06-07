@@ -18,17 +18,12 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Swal from 'sweetalert2';
+import Alert from '../Alert';
 import './Login.css';
 
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Microfinanzas Lending P2P
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
     </Typography>
   );
 }
@@ -41,6 +36,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -106,8 +102,13 @@ export default function Login() {
         // Almacena el estado de sesión en localStorage
         localStorage.setItem('isLoggedIn', 'true');
 
-        navigate('/');
-        window.location.reload();
+        // Mostrar mensaje de éxito
+        setSuccessMessage('Inicio de sesión exitoso! Redirigiendo...');
+        
+        setTimeout(() => {
+          navigate('/');
+          window.location.reload();
+        }, 2000);
       } else {
         const data = await response.json();
         console.log(data.error);
@@ -218,6 +219,13 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
+        {successMessage && (
+          <Alert 
+            type="success" 
+            message={successMessage} 
+            additionalClasses="fixed bottom-4 right-4" 
+          />
+        )}
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>

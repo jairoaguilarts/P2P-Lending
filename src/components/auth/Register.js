@@ -18,19 +18,6 @@ import { MetaMaskContext } from '../../context/MetaMaskContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Microfinanzas Lending P2P
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
 const defaultTheme = createTheme();
 
 export default function Register() {
@@ -173,6 +160,7 @@ export default function Register() {
                   name="firstName"
                   required
                   fullWidth
+                  autoFocus
                   id="firstName"
                   label="Primer Nombre"
                   value={formValues.firstName}
@@ -266,7 +254,6 @@ export default function Register() {
           </Box>
           {error && <Typography color="error" variant="body2" align="center">{error}</Typography>}
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );

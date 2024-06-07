@@ -14,23 +14,26 @@ import Footer from './components/layout/Footer';
 
 const AppContent = () => {
   const location = useLocation();
-  const hideHeaderRoutes = []; // Rutas que no se van a mostrar el nav bar
+  const hideHeaderRoutes = []; // Rutas que no van a mostrar el nav bar
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       {!hideHeaderRoutes.includes(location.pathname) && <Header />}
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/loan-request" element={<LoanRequest />} />
-        <Route path="/loan-offer" element={<LoanOffer />} />
-        <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
-        <Route path="/financial-literacy" element={<FinancialLiteracy />} />
-        <Route path="/training" element={<Training />} />
-        {/* Agrega más rutas según sea necesario */}
-      </Routes>
-    </>
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/loan-request" element={<LoanRequest />} />
+          <Route path="/loan-offer" element={<LoanOffer />} />
+          <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
+          <Route path="/financial-literacy" element={<FinancialLiteracy />} />
+          <Route path="/training" element={<Training />} />
+          {/* Agrega más rutas según sea necesario */}
+        </Routes>
+      </main>
+      <Footer />
+    </div>
   );
 };
 

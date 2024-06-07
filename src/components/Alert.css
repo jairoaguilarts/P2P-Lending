@@ -1,0 +1,11 @@
+.fixed {
+    position: fixed !important;
+}
+
+.bottom-4 {
+    bottom: 1rem !important;
+}
+
+.right-4 {
+    right: 1rem !important;
+}
