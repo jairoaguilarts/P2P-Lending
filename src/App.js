@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { MetaMaskProvider } from './context/MetaMaskContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -12,22 +12,33 @@ import Training from './components/education/Training';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
+const AppContent = () => {
+  const location = useLocation();
+  const hideHeaderRoutes = []; // Rutas que no se van a mostrar el nav bar
+
+  return (
+    <>
+      {!hideHeaderRoutes.includes(location.pathname) && <Header />}
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/loan-request" element={<LoanRequest />} />
+        <Route path="/loan-offer" element={<LoanOffer />} />
+        <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
+        <Route path="/financial-literacy" element={<FinancialLiteracy />} />
+        <Route path="/training" element={<Training />} />
+        {/* Agrega más rutas según sea necesario */}
+      </Routes>
+    </>
+  );
+};
+
 const App = () => {
   return (
     <MetaMaskProvider>
       <Router>
-        <Header />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/loan-request" element={<LoanRequest />} />
-          <Route path="/loan-offer" element={<LoanOffer />} />
-          <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
-          <Route path="/financial-literacy" element={<FinancialLiteracy />} />
-          <Route path="/training" element={<Training />} />
-          {/* Agrega más rutas según sea necesario */}
-        </Routes>
+        <AppContent />
       </Router>
     </MetaMaskProvider>
   );

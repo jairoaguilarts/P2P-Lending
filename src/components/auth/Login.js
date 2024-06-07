@@ -102,13 +102,12 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
-        Swal.fire({
-          title: '¡Éxito!',
-          text: '¡Inicio de sesión exitoso!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-        navigate('/dashboard');
+        
+        // Almacena el estado de sesión en localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+
+        navigate('/');
+        window.location.reload();
       } else {
         const data = await response.json();
         console.log(data.error);
@@ -130,7 +129,7 @@ export default function Login() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="xs" className="flex items-center justify-center min-h-screen">
         <CssBaseline />
         <Box
           sx={{
@@ -140,9 +139,6 @@ export default function Login() {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
           <Typography component="h1" variant="h5">
             Inicia Sesión
           </Typography>
@@ -191,10 +187,6 @@ export default function Login() {
                   </InputAdornment>
                 ),
               }}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
             />
             <Button
               type="submit"
