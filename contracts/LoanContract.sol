@@ -68,6 +68,27 @@ contract LoanContract {
         creditScoring.updateCreditScore(loan.borrower, creditScoring.getCreditScore(loan.borrower) + 1);
     }
 
+    function createLoanOffer(uint _amount, uint _interest, uint _duration) public {
+        require(userManagement.getUser(msg.sender).isVerified, "User not verified");
+
+        loanCount++;
+        loans[loanCount] = Loan(loanCount, address(0), msg.sender, _amount, _interest, _duration, false, false);
+    }
+
+    function acceptLoanOffer(uint _loanId) public {
+        Loan storage loan = loans[_loanId];
+        require(!loan.isFunded, "Loan already funded");
+        require(loan.lender != address(0), "Invalid loan offer");
+
+        loan.borrower = msg.sender;
+        loan.isFunded = true;
+
+        // Transfer funds to the borrower
+        fundManagement.depositFunds{value: loan.amount}();
+        fundManagement.withdrawFunds(loan.amount);
+        payable(loan.borrower).transfer(loan.amount);
+    }
+
     function getLoan(uint _loanId) public view returns (Loan memory) {
         return loans[_loanId];
     }

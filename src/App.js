@@ -7,6 +7,8 @@ import Dashboard from './components/dashboard/Dashboard';
 import LoanRequest from './components/loan/LoanRequest';
 import LoanOffer from './components/loan/LoanOffer';
 import LoanDetail from './components/loan/LoanDetail';
+import RequestedLoans from './components/loan/RequestedLoans';
+import Offers from './components/loan/Offers';
 import FinancialLiteracy from './components/education/FinancialLiteracy';
 import Training from './components/education/Training';
 import Header from './components/layout/Header';
@@ -26,6 +28,8 @@ const AppContent = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/loan-request" element={<LoanRequest />} />
           <Route path="/loan-offer" element={<LoanOffer />} />
+          <Route path="/loan-offers" element={<Offers />} />
+          <Route path="/requested-loans" element={<RequestedLoans />} />
           <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
           <Route path="/financial-literacy" element={<FinancialLiteracy />} />
           <Route path="/training" element={<Training />} />

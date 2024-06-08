@@ -30,14 +30,14 @@ const Header = () => {
                   <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700">
                     <Menu.Item>
                       {({ active }) => (
-                        <Link to="/service1" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                        <Link to="/requested-loans" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                           Prestamos Solicitados
                         </Link>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <Link to="/service2" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                        <Link to="/loan-offers" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                           Prestamos Ofrecidos
                         </Link>
                       )}
@@ -53,14 +53,14 @@ const Header = () => {
                   <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700">
                     <Menu.Item>
                       {({ active }) => (
-                        <Link to="/service1" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                        <Link to="/loan-request" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                           Solicitar Prestamo
                         </Link>
                       )}
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
-                        <Link to="/service2" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                        <Link to="/loan-offer" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                           Ofrecer Prestamo
                         </Link>
                       )}

@@ -104,7 +104,7 @@ export default function Register() {
       const signer = provider.getSigner();
       const walletAddress = await signer.getAddress();
       
-      const userManagementContract = new ethers.Contract("0xdeEbE3b81872e4028Bdf35D9860C83e39D22985a", UserManagement.abi, signer);
+      const userManagementContract = new ethers.Contract("0x654CB55f293a76664856D14AE1aC198d9E2B3EB1", UserManagement.abi, signer);
 
       const tx = await userManagementContract.registerUser(firstName, lastName, email, password, 0);
       await tx.wait();
