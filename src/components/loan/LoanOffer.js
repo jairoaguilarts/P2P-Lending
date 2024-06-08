@@ -1,31 +1,61 @@
 import React, { useState } from 'react';
-import { loanContract, web3 } from '../../services/blockchain';
+import { ethers } from 'ethers';
+import LoanContract from '../../contracts/LoanContract.json';
 
-const LoanOffer = () => {
+const LoanOffer = ({ contractAddress }) => {
   const [loanId, setLoanId] = useState('');
   const [amount, setAmount] = useState('');
 
-  const offerLoan = async () => {
-    const accounts = await web3.eth.getAccounts();
-    await loanContract.methods.fundLoan(loanId).send({ from: accounts[0], value: web3.utils.toWei(amount, 'ether') });
+  const handleOfferLoan = async (event) => {
+    event.preventDefault();
+
+    try {
+      if (!window.ethereum) {
+        alert('Metamask not detected');
+        return;
+      }
+
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const loanContract = new ethers.Contract(contractAddress, LoanContract.abi, signer);
+
+      const tx = await loanContract.fundLoan(loanId, { value: ethers.utils.parseEther(amount) });
+      await tx.wait();
+
+      alert('Loan funded successfully');
+    } catch (error) {
+      console.error('Error offering loan:', error);
+      alert('Error offering loan');
+    }
   };
 
   return (
-    <div>
-      <h2>Offer a Loan</h2>
-      <input
-        type="text"
-        placeholder="Loan ID"
-        value={loanId}
-        onChange={(e) => setLoanId(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Amount in ETH"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <button onClick={offerLoan}>Offer Loan</button>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Offer Loan</h1>
+      <form onSubmit={handleOfferLoan}>
+        <div className="mb-4">
+          <label className="block text-gray-700">Loan ID</label>
+          <input
+            type="text"
+            value={loanId}
+            onChange={(e) => setLoanId(e.target.value)}
+            className="w-full px-3 py-2 border rounded"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Amount (ETH)</label>
+          <input
+            type="text"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full px-3 py-2 border rounded"
+            required
+          />
+        </div>
+        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Offer Loan</button>
+      </form>
     </div>
   );
 };

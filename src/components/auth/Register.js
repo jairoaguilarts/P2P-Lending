@@ -1,11 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
@@ -14,14 +13,15 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { MetaMaskContext } from '../../context/MetaMaskContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { ethers } from 'ethers';
+import UserManagement from '../../contracts/UserManagement.json';
+import Alert from '../Alert';
 
 const defaultTheme = createTheme();
 
 export default function Register() {
-  const { account, connectToMetaMask } = useContext(MetaMaskContext);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -33,6 +33,8 @@ export default function Register() {
   };
   const [formValues, setFormValues] = useState(initialFormValues);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [message, setMessage] = useState('');
+  const [typeMessage, setTypeMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -76,12 +78,8 @@ export default function Register() {
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      Swal.fire({
-        title: 'Error',
-        text: 'Todos los campos son obligatorios',
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
+      setTypeMessage('danger');
+      setMessage('Todos los campos son necesarios');
       return;
     }
 
@@ -89,12 +87,27 @@ export default function Register() {
 
     try {
       setIsConnecting(true);
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      setIsConnecting(false);
-      if (accounts.length === 0) {
-        throw new Error('No accounts found');
+
+      if (typeof window.ethereum === 'undefined') {
+        Swal.fire({
+          title: 'Error',
+          text: 'MetaMask no está instalado!',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        setIsConnecting(false);
+        return;
       }
-      const walletAddress = accounts[0];
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = provider.getSigner();
+      const walletAddress = await signer.getAddress();
+      
+      const userManagementContract = new ethers.Contract("0xdeEbE3b81872e4028Bdf35D9860C83e39D22985a", UserManagement.abi, signer);
+
+      const tx = await userManagementContract.registerUser(firstName, lastName, email, password, 0);
+      await tx.wait();
 
       const response = await fetch('http://localhost:3000/register', {
         method: 'POST',
@@ -111,23 +124,31 @@ export default function Register() {
       });
 
       if (response.ok) {
-        Swal.fire({
-          title: '¡Éxito!',
-          text: '¡Usuario registrado exitosamente!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
-        // Limpiar campos del formulario después del registro exitoso
+        setTypeMessage('success');
+        setMessage('Usuario registrado exitosamente.');
         setFormValues(initialFormValues);
       } else {
         const data = await response.json();
         throw new Error(data.message || 'Error al registrar el usuario');
       }
+
+      setIsConnecting(false);
     } catch (e) {
       console.error("Registration error:", e);
-      setError(`Registration failed: ${e.message}`);
+      setTypeMessage('danger');
+      setMessage(`Registration failed: ${e.message}`);
+      setIsConnecting(false);
     }
   };
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -236,7 +257,7 @@ export default function Register() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isConnecting} 
+              disabled={isConnecting}
             >
               {isConnecting ? 'Conectando MetaMask...' : 'Registrar'}
             </Button>
@@ -254,6 +275,13 @@ export default function Register() {
           </Box>
           {error && <Typography color="error" variant="body2" align="center">{error}</Typography>}
         </Box>
+        {message && (
+          <Alert 
+            type={typeMessage} 
+            message={message} 
+            additionalClasses="fixed bottom-4 right-4" 
+          />
+        )}
       </Container>
     </ThemeProvider>
   );
