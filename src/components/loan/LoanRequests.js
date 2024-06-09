@@ -26,7 +26,7 @@ const LoanRequests = () => {
     const fetchLoanOffers = async () => {
       try {
         const walletAddress = localStorage.getItem('walletAddress');
-        const response = await fetch(`http://localhost:3000/getLoansByBorrower?walletAddress=${walletAddress}`);
+        const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
         if (response.ok) {
           const data = await response.json();
           const filteredData = data.filter(offer => offer.borrower.toLowerCase() !== walletAddress.toLowerCase());
