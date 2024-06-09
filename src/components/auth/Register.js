@@ -94,7 +94,7 @@ export default function Register() {
       const tx = await userManagementContract.registerUser(firstName, lastName, email, password, 0);
       await tx.wait();
 
-      const response = await fetch('http://localhost:3000/register', {
+      const response = await fetch('https://p2p-lending-api.onrender.com/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

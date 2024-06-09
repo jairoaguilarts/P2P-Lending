@@ -104,7 +104,7 @@ const LoanOffers = () => {
       };
 
       // Guardar en MongoDB
-      const response = await fetch('http://localhost:3000/createLoan', {
+      const response = await fetch('https://p2p-lending-api.onrender.com/createLoan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
