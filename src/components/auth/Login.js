@@ -76,6 +76,7 @@ const Login = () => {
         
         // Almacena el estado de sesión en localStorage
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('walletAddress', data.walletAddress);
 
         // Mostrar mensaje de éxito
         setSuccessMessage('Inicio de sesión exitoso! Redirigiendo...');
