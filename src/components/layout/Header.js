@@ -14,6 +14,7 @@ const Header = () => {
 
   const handleSignOut = () => {
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('walletAddress'); // Eliminar walletAddress del localStorage
     setIsLoggedIn(false);
     navigate('/');  // Navegar a la página principal o página de inicio de sesión después de cerrar sesión
   };

@@ -23,16 +23,27 @@ const LoanOffers = () => {
   const [typeMessage, setTypeMessage] = useState('');
 
   useEffect(() => {
-    // Ejemplo de ofertas de préstamo
-    const exampleLoanOffers = [
-      { id: 'LOAN001', amount: '0.01', interestRate: 5, duration: 12, status: 'Active', borrower: '0x...', lender: '0x...', isFunded: false, isRepaid: false },
-      { id: 'LOAN002', amount: '0.5', interestRate: 4.5, duration: 24, status: 'Pending', borrower: '0x...', lender: '0x...', isFunded: false, isRepaid: false },
-      { id: 'LOAN003', amount: '2', interestRate: 6, duration: 36, status: 'Closed', borrower: '0x...', lender: '0x...', isFunded: false, isRepaid: false },
-      { id: 'LOAN004', amount: '1', interestRate: 3.5, duration: 6, status: 'Active', borrower: '0x...', lender: '0x...', isFunded: false, isRepaid: false },
-      { id: 'LOAN005', amount: '0.6', interestRate: 4, duration: 18, status: 'Pending', borrower: '0x...', lender: '0x...', isFunded: false, isRepaid: false },
-    ];
-
-    setLoanOffers(exampleLoanOffers);
+    const fetchLoanOffers = async () => {
+      try {
+        const walletAddress = localStorage.getItem('walletAddress');
+        const response = await fetch(`http://localhost:3000/getLoansByLender?walletAddress=${walletAddress}`);
+        if (response.ok) {
+          const data = await response.json();
+          const filteredData = data.filter(offer => offer.lender.toLowerCase() !== walletAddress.toLowerCase());
+          setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
+        } else {
+          const data = await response.json();
+          throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
+        }
+      } catch (error) {
+        console.error('Error fetching loan offers:', error);
+        setTypeMessage('danger');
+        setMessage('Error al obtener las ofertas de préstamos');
+        setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
+      }
+    };
+  
+    fetchLoanOffers();
   }, []);
 
   const handleInputChange = (e) => {
@@ -113,7 +124,6 @@ const LoanOffers = () => {
       });
 
       if (response.ok) {
-        setLoanOffers([...loanOffers, newLoanOffer]);
         setNewLoan({
           amount: '',
           interestRate: '',
@@ -155,7 +165,7 @@ const LoanOffers = () => {
             Crear Oferta
           </button>
         </div>
-
+  
         {showForm && (
           <form className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800" onSubmit={handleSubmit}>
             <div className="relative z-0 w-full mb-5 group">
@@ -199,7 +209,7 @@ const LoanOffers = () => {
             </button>
           </form>
         )}
-
+  
         <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
           <thead className="bg-blue-600">
             <tr>
@@ -210,20 +220,24 @@ const LoanOffers = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            {loanOffers.map((offer, index) => (
+            {loanOffers.length > 0 ? loanOffers.map((offer, index) => (
               <tr key={offer.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
       {message && <Alert type={typeMessage} message={message} additionalClasses="fixed bottom-4 right-4" />}
     </>
-  );
+  );  
 
 };
 
