@@ -4,13 +4,10 @@ import { MetaMaskProvider } from './context/MetaMaskContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';
-import LoanRequest from './components/loan/LoanRequest';
-import LoanOffer from './components/loan/LoanOffer';
 import LoanDetail from './components/loan/LoanDetail';
-import RequestedLoans from './components/loan/RequestedLoans';
-import Offers from './components/loan/Offers';
-import FinancialLiteracy from './components/education/FinancialLiteracy';
-import Training from './components/education/Training';
+import RequestedLoans from './components/loan/LoanRequests';
+import Offers from './components/loan/LoanOffers';
+import Training from './components/education/Education';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
@@ -26,12 +23,9 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/loan-request" element={<LoanRequest />} />
-          <Route path="/loan-offer" element={<LoanOffer />} />
           <Route path="/loan-offers" element={<Offers />} />
           <Route path="/requested-loans" element={<RequestedLoans />} />
           <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
-          <Route path="/financial-literacy" element={<FinancialLiteracy />} />
           <Route path="/training" element={<Training />} />
           {/* Agrega más rutas según sea necesario */}
         </Routes>

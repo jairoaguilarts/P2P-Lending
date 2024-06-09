@@ -20,6 +20,9 @@ contract LoanContract {
     uint public loanCount;
     mapping(uint => Loan) public loans;
 
+    event LoanOfferCreated(uint indexed loanId, address indexed lender, uint amount, uint interest, uint duration);
+    event LoanRequested(uint indexed loanId, address indexed borrower, uint amount, uint interest, uint duration);
+
     UserManagement userManagement;
     CreditScoring creditScoring;
     FundManagement fundManagement;
@@ -30,10 +33,22 @@ contract LoanContract {
         fundManagement = FundManagement(_fundManagement);
     }
 
+    function createLoanOffer(uint _amount, uint _interest, uint _duration) public {
+        require(userManagement.getUser(msg.sender).isVerified, "User not verified");
+
+        loanCount++;
+        loans[loanCount] = Loan(loanCount, address(0), msg.sender, _amount, _interest, _duration, false, false);
+
+        emit LoanOfferCreated(loanCount, msg.sender, _amount, _interest, _duration);
+    }
+
     function requestLoan(uint _amount, uint _interest, uint _duration) public {
         require(userManagement.getUser(msg.sender).isVerified, "User not verified");
+        
         loanCount++;
         loans[loanCount] = Loan(loanCount, msg.sender, address(0), _amount, _interest, _duration, false, false);
+
+        emit LoanRequested(loanCount, msg.sender, _amount, _interest, _duration);
     }
 
     function fundLoan(uint _loanId) public payable {
@@ -66,13 +81,6 @@ contract LoanContract {
 
         // Update credit score
         creditScoring.updateCreditScore(loan.borrower, creditScoring.getCreditScore(loan.borrower) + 1);
-    }
-
-    function createLoanOffer(uint _amount, uint _interest, uint _duration) public {
-        require(userManagement.getUser(msg.sender).isVerified, "User not verified");
-
-        loanCount++;
-        loans[loanCount] = Loan(loanCount, address(0), msg.sender, _amount, _interest, _duration, false, false);
     }
 
     function acceptLoanOffer(uint _loanId) public {

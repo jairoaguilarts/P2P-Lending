@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu } from '@headlessui/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
 
   const handleLoginClick = () => {
     navigate('/login');
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+    navigate('/');  // Navegar a la página principal o página de inicio de sesión después de cerrar sesión
   };
 
   return (
@@ -19,56 +26,51 @@ const Header = () => {
           <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Microfinance Platform</span>
         </Link>
         <div className="flex items-center md:order-1 space-x-3 md:space-x-0 rtl:space-x-reverse">
-          <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+          <ul className="margen-iz flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
             <li>
-              <Link to="/" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Pagina Principal</Link>
+              <Link
+                to="/"
+                className={`block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${
+                  location.pathname === '/' ? 'text-blue-700 dark:text-blue-500' : ''
+                }`}
+              >
+                Pagina Principal
+              </Link>
             </li>
             {isLoggedIn && (
-              <li>
-                <Menu as="div" className="relative inline-block text-left">
-                  <Menu.Button className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Ver Prestamos</Menu.Button>
-                  <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link to="/requested-loans" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                          Prestamos Solicitados
-                        </Link>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link to="/loan-offers" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                          Prestamos Ofrecidos
-                        </Link>
-                      )}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
-              </li>
+              <>
+                <li>
+                  <Link
+                    to="/requested-loans"
+                    className={`block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${
+                      location.pathname === '/requested-loans' ? 'text-blue-700 dark:text-blue-500' : ''
+                    }`}
+                  >
+                    Solicitudes de Prestamo
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/loan-offers"
+                    className={`block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${
+                      location.pathname === '/loan-offers' ? 'text-blue-700 dark:text-blue-500' : ''
+                    }`}
+                  >
+                    Ofertas de Prestamos
+                  </Link>
+                </li>
+              </>
             )}
-            {isLoggedIn && (
-              <li>
-                <Menu as="div" className="relative inline-block text-left">
-                  <Menu.Button className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Prestamos</Menu.Button>
-                  <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700">
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link to="/loan-request" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                          Solicitar Prestamo
-                        </Link>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }) => (
-                        <Link to="/loan-offer" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                          Ofrecer Prestamo
-                        </Link>
-                      )}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
-              </li>
-            )}
+            <li>
+              <Link
+                to="/training"
+                className={`block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent ${
+                  location.pathname === '/training' ? 'text-blue-700 dark:text-blue-500' : ''
+                }`}
+              >
+                Educacion Financiera
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
@@ -95,9 +97,9 @@ const Header = () => {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <Link to="/signout" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                    <button onClick={handleSignOut} className={`block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                       Cerrar Sesion
-                    </Link>
+                    </button>
                   )}
                 </Menu.Item>
               </Menu.Items>

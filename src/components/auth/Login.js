@@ -1,36 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useNavigate, Link } from 'react-router-dom';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import Alert from '../Alert';
 import './Login.css';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-    </Typography>
-  );
-}
-
-const defaultTheme = createTheme();
-
-export default function Login() {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -129,96 +104,73 @@ export default function Login() {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs" className="flex items-center justify-center min-h-screen">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Typography component="h1" variant="h5">
-            Inicia Sesión
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            {error && <Typography color="error" variant="body2" align="center">{error}</Typography>}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md">
+        <h1 className="text-2xl font-bold mb-8 text-gray-800 dark:text-gray-100">Inicia Sesión</h1>
+        <form noValidate onSubmit={handleSubmit}>
+          {error && <p className="text-sm text-red-600 dark:text-red-500">{error}</p>}
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="email"
               name="email"
-              autoComplete="email"
-              autoFocus
+              id="email"
+              className={`block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${fieldErrors.email ? 'border-red-500' : 'border-gray-300'} appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer`}
+              placeholder=" "
               value={email}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={!!fieldErrors.email}
-              helperText={fieldErrors.email ? 'Este campo es obligatorio' : ''}
-            />
-            <TextField
-              margin="normal"
               required
-              fullWidth
-              name="password"
-              label="Password"
+            />
+            <label htmlFor="email" className={`peer-focus:font-medium absolute text-sm ${fieldErrors.email ? 'text-red-500' : 'text-gray-500'} dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 dark:peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6`}>Correo Electrónico</label>
+            {fieldErrors.email && <p className="mt-2 text-sm text-red-600 dark:text-red-500">Este campo es obligatorio</p>}
+          </div>
+          <div className="relative z-0 w-full mb-5 group">
+            <input
               type={showPassword ? 'text' : 'password'}
+              name="password"
               id="password"
-              autoComplete="current-password"
+              className={`block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 ${fieldErrors.password ? 'border-red-500' : 'border-gray-300'} appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer`}
+              placeholder=" "
               value={password}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={!!fieldErrors.password}
-              helperText={fieldErrors.password ? 'Este campo es obligatorio' : ''}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
+              required
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+            <label htmlFor="password" className={`peer-focus:font-medium absolute text-sm ${fieldErrors.password ? 'text-red-500' : 'text-gray-500'} dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 dark:peer-focus:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6`}>Contraseña</label>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <button
+                type="button"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                className="text-gray-500 dark:text-gray-400 focus:outline-none"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </button>
+            </div>
+            {fieldErrors.password && <p className="mt-2 text-sm text-red-600 dark:text-red-500">Este campo es obligatorio</p>}
+          </div>
+          <button
+            type="submit"
+            className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Ingresar
+          </button>
+          <div className="flex justify-between mt-4">
+            <Link to="#" className="text-sm text-blue-600 hover:underline dark:text-blue-500">
+              Olvidaste la contraseña?
+            </Link>
+            <Link
+              to="#"
+              className="text-sm text-blue-600 hover:underline dark:text-blue-500"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate('/register');
+              }}
             >
-              Ingresar
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Olvidaste la contraseña?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link
-                  href="#"
-                  variant="body2"
-                  className="register-link"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate('/register');
-                  }}
-                >
-                  {"No tienes una cuenta? Registrate"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
+              ¿No tienes una cuenta? Regístrate
+            </Link>
+          </div>
+        </form>
         {successMessage && (
           <Alert 
             type="success" 
@@ -226,8 +178,9 @@ export default function Login() {
             additionalClasses="fixed bottom-4 right-4" 
           />
         )}
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </Container>
-    </ThemeProvider>
+      </div>
+    </div>
   );
-}
+};
+
+export default Login;

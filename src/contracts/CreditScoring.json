@@ -18,8 +18,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     },
     {
       "inputs": [
@@ -56,8 +55,7 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function",
-      "constant": true
+      "type": "function"
     }
   ],
   "metadata": "{\"compiler\":{\"version\":\"0.8.0+commit.c7dfd78e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"creditScores\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"getCreditScore\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_newScore\",\"type\":\"uint256\"}],\"name\":\"updateCreditScore\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/CreditScoring.sol\":\"CreditScoring\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/CreditScoring.sol\":{\"keccak256\":\"0x35aac84eedb46ba4ee78dd25dc04f9d1d5d47790b01d4651e0d422f291c8c428\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f6a62c4e395573cb998da7b1e7cc2faf7d71e20c4ccdc1a5c22f3d3a5404c320\",\"dweb:/ipfs/QmQKwVYDBjHuA6EHxRFYd2t1f96pdkTUkrPB933ePHGqE5\"]}},\"version\":1}",
@@ -1599,17 +1597,9 @@
     "name": "solc",
     "version": "0.8.0+commit.c7dfd78e.Emscripten.clang"
   },
-  "networks": {
-    "5777": {
-      "events": {},
-      "links": {},
-      "address": "0xB78807e38872dF0d23264d80abeAEae3848cC6f9",
-      "transactionHash": "0xacd3e463b01480bd4eba8c48faf1e63952c081880139d9e1cec6d7e4715cb981"
-    }
-  },
+  "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-06-08T21:53:13.192Z",
-  "networkType": "ethereum",
+  "updatedAt": "2024-06-09T01:54:55.123Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
