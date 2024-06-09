@@ -54,25 +54,25 @@ export default function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { firstName, lastName, email, password } = formValues;
-
+  
     const errors = {};
     if (!firstName) errors.firstName = true;
     if (!lastName) errors.lastName = true;
     if (!email) errors.email = true;
     if (!password) errors.password = true;
-
+  
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       setTypeMessage('danger');
       setMessage('Todos los campos son necesarios');
       return;
     }
-
+  
     setFieldErrors({});
-
+  
     try {
       setIsConnecting(true);
-
+  
       if (typeof window.ethereum === 'undefined') {
         Swal.fire({
           title: 'Error',
@@ -83,17 +83,17 @@ export default function Register() {
         setIsConnecting(false);
         return;
       }
-
+  
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const walletAddress = await signer.getAddress();
-
+  
       const userManagementContract = new ethers.Contract("0x654CB55f293a76664856D14AE1aC198d9E2B3EB1", UserManagement.abi, signer);
-
+  
       const tx = await userManagementContract.registerUser(firstName, lastName, email, password, 0);
       await tx.wait();
-
+  
       const response = await fetch('https://p2p-lending-api.onrender.com/register', {
         method: 'POST',
         headers: {
@@ -107,16 +107,20 @@ export default function Register() {
           walletAddress,
         }),
       });
-
+  
       if (response.ok) {
         setTypeMessage('success');
         setMessage('Usuario registrado exitosamente.');
         setFormValues(initialFormValues);
+      } else if (response.status === 401) {
+        const data = await response.json();
+        setTypeMessage('danger');
+        setMessage(data.message || 'Error al registrar el usuario');
       } else {
         const data = await response.json();
         throw new Error(data.message || 'Error al registrar el usuario');
       }
-
+  
       setIsConnecting(false);
     } catch (e) {
       console.error("Registration error:", e);
@@ -125,6 +129,7 @@ export default function Register() {
       setIsConnecting(false);
     }
   };
+  
 
   useEffect(() => {
     if (message) {
