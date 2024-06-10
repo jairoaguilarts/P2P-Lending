@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import LoanContract from '../../contracts/LoanContract.json';
 import Alert from '../Alert';
 
-const LoanRequests = () => {
+const MyRequests = () => {
   const [loanRequests, setLoanRequests] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newLoan, setNewLoan] = useState({
@@ -143,6 +143,27 @@ const LoanRequests = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/deleteLoan/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setLoanRequests(loanRequests.filter(offer => offer.id !== id));
+        setTypeMessage('success');
+        setMessage('Oferta de préstamo eliminada exitosamente.');
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al eliminar la oferta de préstamo');
+      }
+    } catch (error) {
+      console.error('Error deleting loan offer:', error);
+      setTypeMessage('danger');
+      setMessage('Error al eliminar la oferta de préstamo');
+    }
+  };
+
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
     if (message) {
@@ -217,6 +238,7 @@ const LoanRequests = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tasa de Interes</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Duracion</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+              <th className="px-6 py-3"></th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
@@ -226,6 +248,14 @@ const LoanRequests = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200 text-right">
+                  <button
+                    onClick={() => handleDelete(offer.loanID)}
+                    className="text-red-600 hover:text-red-900"
+                  >
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             )) : (
               <tr>
@@ -241,4 +271,4 @@ const LoanRequests = () => {
 
 };
 
-export default LoanRequests;
+export default MyRequests;
