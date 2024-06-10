@@ -84,15 +84,22 @@ const Header = () => {
               <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link to="/dashboard" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                      Historial
+                    <Link to="/my-offers" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                      Mis Ofertas
+                    </Link>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <Link to="/my-requests" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                      Mis Solicitudes
                     </Link>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
                     <Link to="/settings" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
-                      Configuracion
+                      Prestamos activos
                     </Link>
                   )}
                 </Menu.Item>
