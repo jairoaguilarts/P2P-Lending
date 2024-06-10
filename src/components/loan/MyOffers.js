@@ -145,12 +145,34 @@ const MyOffers = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:3000/deleteLoan/${id}`, {
+      if (typeof window.ethereum === 'undefined') {
+        Swal.fire({
+          title: 'Error',
+          text: 'MetaMask no está instalado!',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+  
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = provider.getSigner();
+      const loanContract = new ethers.Contract(
+        "0xa1836B9BF58c41dB635B7697f966A0876b8698a6", // Reemplaza con la dirección de tu contrato
+        LoanContract.abi,
+        signer
+      );
+  
+      const tx = await loanContract.deleteLoan(id);
+      await tx.wait();
+  
+      const response = await fetch(`https://p2p-lending-api.onrender.com/deleteLoan/${id}`, {
         method: 'DELETE',
       });
-
+  
       if (response.ok) {
-        setLoanOffers(loanOffers.filter(offer => offer.id !== id));
+        setLoanOffers(loanOffers.filter(request => request.id !== id));
         setTypeMessage('success');
         setMessage('Oferta de préstamo eliminada exitosamente.');
       } else {
@@ -163,6 +185,7 @@ const MyOffers = () => {
       setMessage('Error al eliminar la oferta de préstamo');
     }
   };
+  
 
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
