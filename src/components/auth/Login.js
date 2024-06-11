@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Swal from 'sweetalert2';
 import Alert from '../Alert';
+import { ethers } from 'ethers';
+import UserManagement from '../../contracts/UserManagement.json';
 import './Login.css';
 
 const Login = () => {
@@ -11,7 +13,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState('');
+  const [type, setType] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -73,22 +76,51 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Almacena el estado de sesión en localStorage
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('walletAddress', data.walletAddress);
 
-        // Mostrar mensaje de éxito
-        setSuccessMessage('Inicio de sesión exitoso! Redirigiendo...');
-        
-        setTimeout(() => {
-          navigate('/');
-          window.location.reload();
-        }, 2000);
+        if (typeof window.ethereum === 'undefined') {
+          Swal.fire({
+            title: 'Error',
+            text: 'MetaMask no está instalado!',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+          return;
+        }
+
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+        const userManagementContract = new ethers.Contract(
+          "0x654CB55f293a76664856D14AE1aC198d9E2B3EB1",
+          UserManagement.abi,
+          signer
+        );
+
+        const user = await userManagementContract.getUser(userAddress);
+
+        if (user.from === data.walletAddress) {
+          // Almacena el estado de sesión en localStorage
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('walletAddress', user.userAddress);
+
+          // Mostrar mensaje de éxito
+          setType("success");
+          setMessage('Inicio de sesión exitoso! Redirigiendo...');
+
+          setTimeout(() => {
+            navigate('/');
+            window.location.reload();
+          }, 2000);
+        } else {
+          setType('danger');
+          setMessage('Seleccione la billetera con la que se registro');
+        }
       } else {
         const data = await response.json();
         console.log(data.error);
-        setError(data.error || 'Correo o contraseña incorrecto');
+        setType('danger');
+        setMessage('Credenciales incorrectos');
       }
     } catch (e) {
       console.error("Login error:", e);
@@ -172,11 +204,11 @@ const Login = () => {
             </Link>
           </div>
         </form>
-        {successMessage && (
-          <Alert 
-            type="success" 
-            message={successMessage} 
-            additionalClasses="fixed bottom-4 right-4" 
+        {message && (
+          <Alert
+            type={type}
+            message={message}
+            additionalClasses="fixed bottom-4 right-4"
           />
         )}
       </div>
