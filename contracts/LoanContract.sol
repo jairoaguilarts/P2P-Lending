@@ -22,6 +22,7 @@ contract LoanContract {
 
     event LoanOfferCreated(uint indexed loanId, address indexed lender, uint amount, uint interest, uint duration);
     event LoanRequested(uint indexed loanId, address indexed borrower, uint amount, uint interest, uint duration);
+    event LoanDeleted(uint indexed loanId);
 
     UserManagement userManagement;
     CreditScoring creditScoring;
@@ -95,6 +96,15 @@ contract LoanContract {
         fundManagement.depositFunds{value: loan.amount}();
         fundManagement.withdrawFunds(loan.amount);
         payable(loan.borrower).transfer(loan.amount);
+    }
+
+    function deleteLoan(uint _loanId) public {
+        Loan storage loan = loans[_loanId];
+        require(msg.sender == loan.borrower || msg.sender == loan.lender, "Only borrower or lender can delete the loan");
+        require(!loan.isFunded, "Cannot delete a funded loan");
+
+        delete loans[_loanId];
+        emit LoanDeleted(_loanId);
     }
 
     function getLoan(uint _loanId) public view returns (Loan memory) {

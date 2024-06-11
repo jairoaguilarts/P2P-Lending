@@ -90,7 +90,7 @@ const LoanRequests = () => {
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const loanContract = new ethers.Contract(
-        "0xa1836B9BF58c41dB635B7697f966A0876b8698a6",
+        "0x1e152E7A3027789a6bd8fD657DB69c7Cdb0dfEec",
         LoanContract.abi,
         signer
       );
