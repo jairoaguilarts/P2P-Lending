@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ethers } from 'ethers';
 import UserManagement from '../../contracts/UserManagement.json';
@@ -19,7 +19,6 @@ export default function Register() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [message, setMessage] = useState('');
   const [typeMessage, setTypeMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -235,7 +234,6 @@ export default function Register() {
             </Link>
           </div>
         </form>
-        {error && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{error}</p>}
         {message && <Alert type={typeMessage} message={message} additionalClasses="fixed bottom-4 right-4" />}
       </div>
     </div>
