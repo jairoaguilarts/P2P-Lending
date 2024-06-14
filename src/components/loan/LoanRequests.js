@@ -229,7 +229,7 @@ const LoanRequests = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles</td>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay solicitudes de préstamos disponibles.</td>
               </tr>
             )}
           </tbody>

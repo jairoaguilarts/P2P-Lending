@@ -124,6 +124,8 @@ const MyOffers = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setLoanOffers(prevOffers => [...prevOffers, data]); // Actualiza la lista de ofertas
         setNewLoan({
           amount: '',
           interestRate: '',
@@ -273,7 +275,7 @@ const MyOffers = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200 text-right">
                   <button
-                    onClick={() => handleDelete(offer.loanID)}
+                    onClick={() => handleDelete(offer.id)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Eliminar
@@ -282,7 +284,7 @@ const MyOffers = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles</td>
+                <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">Crea ofertas de prestamo para visualizarlas aqui.</td>
               </tr>
             )}
           </tbody>

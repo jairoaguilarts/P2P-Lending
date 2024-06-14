@@ -23,27 +23,27 @@ const MyRequests = () => {
   const [typeMessage, setTypeMessage] = useState('');
 
   useEffect(() => {
-    const fetchLoanOffers = async () => {
+    const fetchLoanRequests = async () => {
       try {
         const walletAddress = localStorage.getItem('walletAddress');
         const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
         if (response.ok) {
           const data = await response.json();
-          const filteredData = data.filter(offer => offer.borrower.toLowerCase() === walletAddress.toLowerCase());
+          const filteredData = data.filter(request => request.borrower.toLowerCase() === walletAddress.toLowerCase());
           setLoanRequests(Array.isArray(filteredData) ? filteredData : []);
         } else {
           const data = await response.json();
-          throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
+          throw new Error(data.message || 'Error al obtener las solicitudes de préstamos');
         }
       } catch (error) {
-        console.error('Error fetching loan offers:', error);
+        console.error('Error fetching loan requests:', error);
         setTypeMessage('danger');
-        setMessage('Error al obtener las ofertas de préstamos');
+        setMessage('Error al obtener las solicitudes de préstamos');
         setLoanRequests([]);
       }
     };
-  
-    fetchLoanOffers();
+
+    fetchLoanRequests();
   }, []);
 
   const handleInputChange = (e) => {
@@ -124,6 +124,8 @@ const MyRequests = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setLoanRequests(prevRequests => [...prevRequests, data]); // Actualiza la lista de solicitudes
         setNewLoan({
           amount: '',
           interestRate: '',
@@ -154,7 +156,7 @@ const MyRequests = () => {
         });
         return;
       }
-  
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
@@ -163,29 +165,28 @@ const MyRequests = () => {
         LoanContract.abi,
         signer
       );
-  
+
       const tx = await loanContract.deleteLoan(id);
       await tx.wait();
-  
+
       const response = await fetch(`https://p2p-lending-api.onrender.com/deleteLoan/${id}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
         setLoanRequests(loanRequests.filter(request => request.id !== id));
         setTypeMessage('success');
-        setMessage('Oferta de préstamo eliminada exitosamente.');
+        setMessage('Solicitud de préstamo eliminada exitosamente.');
       } else {
         const data = await response.json();
-        throw new Error(data.message || 'Error al eliminar la oferta de préstamo');
+        throw new Error(data.message || 'Error al eliminar la solicitud de préstamo');
       }
     } catch (error) {
-      console.error('Error deleting loan offer:', error);
+      console.error('Error deleting loan request:', error);
       setTypeMessage('danger');
-      setMessage('Error al eliminar la oferta de préstamo');
+      setMessage('Error al eliminar la solicitud de préstamo');
     }
   };
-  
 
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
@@ -197,7 +198,7 @@ const MyRequests = () => {
     }
   }, [message]);
 
-    return (
+  return (
     <>
       <div className="overflow-x-auto m-4">
         <div className="mb-4">
@@ -265,15 +266,15 @@ const MyRequests = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-          {loanRequests.length > 0 ? loanRequests.map((offer, index) => (
-              <tr key={offer.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
+            {loanRequests.length > 0 ? loanRequests.map((request, index) => (
+              <tr key={request.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.amount} ETH</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.interestRate}%</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.duration} meses</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200 text-right">
                   <button
-                    onClick={() => handleDelete(offer.loanID)}
+                    onClick={() => handleDelete(request.id)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Eliminar
@@ -282,7 +283,7 @@ const MyRequests = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles</td>
+                <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">Crea solicitudes de prestamo para visualizarlas aqui.</td>
               </tr>
             )}
           </tbody>

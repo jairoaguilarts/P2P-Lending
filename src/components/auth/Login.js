@@ -102,7 +102,7 @@ const Login = () => {
         if (user.from === data.walletAddress) {
           // Almacena el estado de sesión en localStorage
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('walletAddress', user.userAddress);
+          localStorage.setItem('walletAddress', user.from);
 
           // Mostrar mensaje de éxito
           setType("success");
