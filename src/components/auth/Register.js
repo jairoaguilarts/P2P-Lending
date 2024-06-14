@@ -7,7 +7,6 @@ import Alert from '../Alert';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 export default function Register() {
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const initialFormValues = {

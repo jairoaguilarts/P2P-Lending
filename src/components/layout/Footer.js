@@ -9,18 +9,12 @@ const Footer = () => {
             <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Microfinance Platform</span>
           </a>
           <ul className="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
-            <li>
-              <a href="#" className="hover:underline me-4 md:me-6">About</a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline me-4 md:me-6">Privacy Policy</a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline me-4 md:me-6">Licensing</a>
-            </li>
-            <li>
-              <a href="#" className="hover:underline">Contact</a>
-            </li>
+            <footer>
+              <button onClick={() => alert('Link 1 clicked')}>Sobre Nosotros</button>
+              <button onClick={() => alert('Link 2 clicked')}>Privacidad</button>
+              <button onClick={() => alert('Link 3 clicked')}>Link 3</button>
+              <button onClick={() => alert('Link 4 clicked')}>Link 4</button>
+            </footer>
           </ul>
         </div>
         <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
