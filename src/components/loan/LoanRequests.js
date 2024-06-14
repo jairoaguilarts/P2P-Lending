@@ -7,6 +7,8 @@ import Alert from '../Alert';
 const LoanRequests = () => {
   const [loanRequests, setLoanRequests] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [expandedRequest, setExpandedRequest] = useState(null);
+  const [borrowerDetails, setBorrowerDetails] = useState({});
   const [newLoan, setNewLoan] = useState({
     id: '',
     amount: '',
@@ -42,7 +44,7 @@ const LoanRequests = () => {
         setLoanRequests([]);
       }
     };
-  
+
     fetchLoanOffers();
   }, []);
 
@@ -124,6 +126,8 @@ const LoanRequests = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setLoanRequests(prevRequests => [...prevRequests, data]); // Actualiza la lista de solicitudes
         setNewLoan({
           amount: '',
           interestRate: '',
@@ -143,6 +147,28 @@ const LoanRequests = () => {
     }
   };
 
+  const toggleDetails = async (id, borrower) => {
+    if (expandedRequest === id) {
+      setExpandedRequest(null);
+      setBorrowerDetails({});
+    } else {
+      setExpandedRequest(id);
+      try {
+        const response = await fetch(`http://localhost:3000/getBorrower/${borrower}`);
+        if (response.ok) {
+          const data = await response.json();
+          setBorrowerDetails(data);
+        } else {
+          console.error('Error fetching borrower details:', response.statusText);
+          setBorrowerDetails({});
+        }
+      } catch (error) {
+        console.error('Error fetching borrower details:', error);
+        setBorrowerDetails({});
+      }
+    }
+  };
+
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
     if (message) {
@@ -153,7 +179,7 @@ const LoanRequests = () => {
     }
   }, [message]);
 
-    return (
+  return (
     <>
       <div className="overflow-x-auto m-4">
         <div className="mb-4">
@@ -220,13 +246,26 @@ const LoanRequests = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-          {loanRequests.length > 0 ? loanRequests.map((offer, index) => (
-              <tr key={offer.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
-              </tr>
+            {loanRequests.length > 0 ? loanRequests.map((request, index) => (
+              <React.Fragment key={request.loanID}>
+                <tr 
+                  onClick={() => toggleDetails(request.loanID, request.borrower)}
+                  className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.amount} ETH</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.interestRate}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.duration} meses</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.status}</td>
+                </tr>
+                {expandedRequest === request.loanID && (
+                  <tr className="bg-gray-100 dark:bg-gray-700">
+                    <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
+                      <div><strong>Prestamista:</strong> {request.borrower}</div>
+                      <div><strong>Nombre:</strong> {borrowerDetails.firstName + " " + borrowerDetails.lastName}</div>
+                      <div><strong>Score crediticio:</strong> {borrowerDetails.creditScore}</div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             )) : (
               <tr>
                 <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay solicitudes de préstamos disponibles.</td>

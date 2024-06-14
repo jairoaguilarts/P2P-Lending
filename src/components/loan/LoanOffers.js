@@ -7,6 +7,8 @@ import Alert from '../Alert';
 const LoanOffers = () => {
   const [loanOffers, setLoanOffers] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [expandedRequest, setExpandedRequest] = useState(false);
+  const [lenderDetails, setLenderDetails] = useState({});
   const [newLoan, setNewLoan] = useState({
     id: '',
     amount: '',
@@ -143,6 +145,28 @@ const LoanOffers = () => {
     }
   };
 
+  const toggleDetails = async (id, lender) => {
+    if (expandedRequest === id) {
+      setExpandedRequest(null);
+      setLenderDetails({});
+    } else {
+      setExpandedRequest(id);
+      try {
+        const response = await fetch(`http://localhost:3000/getLender/${lender}`);
+        if (response.ok) {
+          const data = await response.json();
+          setLenderDetails(data);
+        } else {
+          console.error('Error fetching lender details:', response.statusText);
+          setLenderDetails({});
+        }
+      } catch (error) {
+        console.error('Error fetching lender details:', error);
+        setLenderDetails({});
+      }
+    }
+  };
+
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
     if (message) {
@@ -220,16 +244,29 @@ const LoanOffers = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            {loanOffers.length > 0 ? loanOffers.map((offer, index) => (
-              <tr key={offer.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
-              </tr>
+            {loanOffers.length > 0 ? loanOffers.map((request, index) => (
+              <React.Fragment key={request.loanID}>
+                <tr 
+                  onClick={() => toggleDetails(request.loanID, request.lender)}
+                  className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.amount} ETH</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.interestRate}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.duration} meses</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.status}</td>
+                </tr>
+                {expandedRequest === request.loanID && (
+                  <tr className="bg-gray-100 dark:bg-gray-700">
+                    <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
+                      <div><strong>Prestamista:</strong> {request.lender}</div>
+                      <div><strong>Nombre:</strong> {lenderDetails.firstName + " " + lenderDetails.lastName}</div>
+                      <div><strong>Score crediticio:</strong> {lenderDetails.creditScore}</div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             )) : (
               <tr>
-                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles</td>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay solicitudes de préstamos disponibles.</td>
               </tr>
             )}
           </tbody>
