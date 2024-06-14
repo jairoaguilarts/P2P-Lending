@@ -154,7 +154,7 @@ const LoanRequests = () => {
     } else {
       setExpandedRequest(id);
       try {
-        const response = await fetch(`http://localhost:3000/getBorrower/${borrower}`);
+        const response = await fetch(`https://p2p-lending-api.onrender.com/getBorrower/${borrower}`);
         if (response.ok) {
           const data = await response.json();
           setBorrowerDetails(data);
@@ -166,6 +166,19 @@ const LoanRequests = () => {
         console.error('Error fetching borrower details:', error);
         setBorrowerDetails({});
       }
+    }
+  };
+
+  const acceptLoan = async (loanID) => {
+    // Implement the function to handle loan acceptance
+    try {
+      
+      setTypeMessage('success');
+      setMessage('Préstamo aceptado exitosamente.');
+    } catch (error) {
+      console.error('Error accepting loan:', error);
+      setTypeMessage('danger');
+      setMessage('Error al aceptar el préstamo');
     }
   };
 
@@ -262,6 +275,12 @@ const LoanRequests = () => {
                       <div><strong>Prestamista:</strong> {request.borrower}</div>
                       <div><strong>Nombre:</strong> {borrowerDetails.firstName + " " + borrowerDetails.lastName}</div>
                       <div><strong>Score crediticio:</strong> {borrowerDetails.creditScore}</div>
+                      <button
+                        onClick={() => acceptLoan(request.loanID)}
+                        className="mt-2 text-white bg-blue-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                      >
+                        Aceptar
+                      </button>
                     </td>
                   </tr>
                 )}

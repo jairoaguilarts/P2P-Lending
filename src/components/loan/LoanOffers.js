@@ -7,7 +7,7 @@ import Alert from '../Alert';
 const LoanOffers = () => {
   const [loanOffers, setLoanOffers] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [expandedRequest, setExpandedRequest] = useState(false);
+  const [expandedRequest, setExpandedRequest] = useState(null);
   const [lenderDetails, setLenderDetails] = useState({});
   const [newLoan, setNewLoan] = useState({
     id: '',
@@ -20,7 +20,7 @@ const LoanOffers = () => {
     isFunded: false,
     isRepaid: false,
   });
-  const [fieldErrors, setFieldErrors] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [message, setMessage] = useState('');
   const [typeMessage, setTypeMessage] = useState('');
 
@@ -44,7 +44,7 @@ const LoanOffers = () => {
         setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
       }
     };
-  
+
     fetchLoanOffers();
   }, []);
 
@@ -152,7 +152,7 @@ const LoanOffers = () => {
     } else {
       setExpandedRequest(id);
       try {
-        const response = await fetch(`http://localhost:3000/getLender/${lender}`);
+        const response = await fetch(`https://p2p-lending-api.onrender.com/getLender/${lender}`);
         if (response.ok) {
           const data = await response.json();
           setLenderDetails(data);
@@ -164,6 +164,19 @@ const LoanOffers = () => {
         console.error('Error fetching lender details:', error);
         setLenderDetails({});
       }
+    }
+  };
+
+  const acceptLoan = async (loanID) => {
+    // Implement the function to handle loan acceptance
+    try {
+      
+      setTypeMessage('success');
+      setMessage('Préstamo aceptado exitosamente.');
+    } catch (error) {
+      console.error('Error accepting loan:', error);
+      setTypeMessage('danger');
+      setMessage('Error al aceptar el préstamo');
     }
   };
 
@@ -189,7 +202,7 @@ const LoanOffers = () => {
             Crear Oferta
           </button>
         </div>
-  
+
         {showForm && (
           <form className="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800" onSubmit={handleSubmit}>
             <div className="relative z-0 w-full mb-5 group">
@@ -233,7 +246,7 @@ const LoanOffers = () => {
             </button>
           </form>
         )}
-  
+
         <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
           <thead className="bg-blue-600">
             <tr>
@@ -244,29 +257,35 @@ const LoanOffers = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-            {loanOffers.length > 0 ? loanOffers.map((request, index) => (
-              <React.Fragment key={request.loanID}>
+            {loanOffers.length > 0 ? loanOffers.map((offer, index) => (
+              <React.Fragment key={offer.loanID}>
                 <tr 
-                  onClick={() => toggleDetails(request.loanID, request.lender)}
+                  onClick={() => toggleDetails(offer.loanID, offer.lender)}
                   className={`cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.amount} ETH</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.interestRate}%</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.duration} meses</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{request.status}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
                 </tr>
-                {expandedRequest === request.loanID && (
+                {expandedRequest === offer.loanID && (
                   <tr className="bg-gray-100 dark:bg-gray-700">
                     <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
-                      <div><strong>Prestamista:</strong> {request.lender}</div>
+                      <div><strong>Prestamista:</strong> {offer.lender}</div>
                       <div><strong>Nombre:</strong> {lenderDetails.firstName + " " + lenderDetails.lastName}</div>
                       <div><strong>Score crediticio:</strong> {lenderDetails.creditScore}</div>
+                      <button
+                        onClick={() => acceptLoan(offer.loanID)}
+                        className="mt-2 text-white bg-blue-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                      >
+                        Aceptar
+                      </button>
                     </td>
                   </tr>
                 )}
               </React.Fragment>
             )) : (
               <tr>
-                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay solicitudes de préstamos disponibles.</td>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay ofertas de préstamos disponibles.</td>
               </tr>
             )}
           </tbody>
