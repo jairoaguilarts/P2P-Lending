@@ -6,6 +6,7 @@ import Alert from '../Alert';
 
 const MyOffers = () => {
   const [loanOffers, setLoanOffers] = useState([]);
+  const [activeOffers, setActiveOffers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newLoan, setNewLoan] = useState({
     id: '',
@@ -31,6 +32,8 @@ const MyOffers = () => {
           const data = await response.json();
           const filteredData = data.filter(offer => offer.lender.toLowerCase() === walletAddress.toLowerCase());
           setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
+          const activeData = filteredData.filter(offer => offer.borrower !== null);
+          setActiveOffers(Array.isArray(activeData) ? activeData : []);
         } else {
           const data = await response.json();
           throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
@@ -156,7 +159,7 @@ const MyOffers = () => {
         });
         return;
       }
-  
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
@@ -165,14 +168,14 @@ const MyOffers = () => {
         LoanContract.abi,
         signer
       );
-  
+
       const tx = await loanContract.deleteLoan(id);
       await tx.wait();
-  
+
       const response = await fetch(`https://p2p-lending-api.onrender.com/deleteLoan/${id}`, {
         method: 'DELETE',
       });
-  
+
       if (response.ok) {
         setLoanOffers(loanOffers.filter(request => request.id !== id));
         setTypeMessage('success');
@@ -187,7 +190,6 @@ const MyOffers = () => {
       setMessage('Error al eliminar la oferta de préstamo');
     }
   };
-  
 
   // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
@@ -256,6 +258,7 @@ const MyOffers = () => {
           </form>
         )}
 
+        <h2 className="text-2xl font-bold mt-8 mb-4">Ofertas de Préstamo</h2>
         <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
           <thead className="bg-blue-600">
             <tr>
@@ -289,11 +292,36 @@ const MyOffers = () => {
             )}
           </tbody>
         </table>
+
+        <h2 className="text-2xl font-bold mt-8 mb-4">Préstamos Activos</h2>
+        <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
+          <thead className="bg-green-600">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cantidad</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tasa de Interes</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Duracion</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+            {activeOffers.length > 0 ? activeOffers.map((offer, index) => (
+              <tr key={offer.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.amount} ETH</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.interestRate}%</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.duration} meses</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay préstamos activos.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
       {message && <Alert type={typeMessage} message={message} additionalClasses="fixed bottom-4 right-4" />}
     </>
   );
-
 };
 
 export default MyOffers;

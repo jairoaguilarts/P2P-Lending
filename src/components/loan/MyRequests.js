@@ -6,6 +6,7 @@ import Alert from '../Alert';
 
 const MyRequests = () => {
   const [loanRequests, setLoanRequests] = useState([]);
+  const [activeLoans, setActiveLoans] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [newLoan, setNewLoan] = useState({
     id: '',
@@ -31,6 +32,8 @@ const MyRequests = () => {
           const data = await response.json();
           const filteredData = data.filter(request => request.borrower.toLowerCase() === walletAddress.toLowerCase());
           setLoanRequests(Array.isArray(filteredData) ? filteredData : []);
+          const activeData = filteredData.filter(request => request.lender !== null);
+          setActiveLoans(Array.isArray(activeData) ? activeData : []);
         } else {
           const data = await response.json();
           throw new Error(data.message || 'Error al obtener las solicitudes de préstamos');
@@ -255,6 +258,7 @@ const MyRequests = () => {
           </form>
         )}
 
+        <h2 className="text-2xl font-bold mt-8 mb-4">Solicitudes de Préstamo</h2>
         <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
           <thead className="bg-blue-600">
             <tr>
@@ -288,11 +292,36 @@ const MyRequests = () => {
             )}
           </tbody>
         </table>
+
+        <h2 className="text-2xl font-bold mt-8 mb-4">Préstamos Activos</h2>
+        <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
+          <thead className="bg-green-600">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Cantidad</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tasa de Interes</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Duracion</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Estado</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+            {activeLoans.length > 0 ? activeLoans.map((loan, index) => (
+              <tr key={loan.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-900' : 'bg-white dark:bg-gray-800'}`}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.amount} ETH</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.interestRate}%</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.duration} meses</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.status}</td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">No hay préstamos activos.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
       {message && <Alert type={typeMessage} message={message} additionalClasses="fixed bottom-4 right-4" />}
     </>
   );
-
 };
 
 export default MyRequests;
