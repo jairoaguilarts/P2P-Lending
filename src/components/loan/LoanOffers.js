@@ -24,27 +24,27 @@ const LoanOffers = () => {
   const [message, setMessage] = useState('');
   const [typeMessage, setTypeMessage] = useState('');
 
-  useEffect(() => {
-    const fetchLoanOffers = async () => {
-      try {
-        const walletAddress = localStorage.getItem('walletAddress');
-        const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByLender?walletAddress=${walletAddress}`);
-        if (response.ok) {
-          const data = await response.json();
-          const filteredData = data.filter(offer => offer.lender.toLowerCase() !== walletAddress.toLowerCase());
-          setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
-        } else {
-          const data = await response.json();
-          throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
-        }
-      } catch (error) {
-        console.error('Error fetching loan offers:', error);
-        setTypeMessage('danger');
-        setMessage('Error al obtener las ofertas de préstamos');
-        setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
+  const fetchLoanOffers = async () => {
+    try {
+      const walletAddress = localStorage.getItem('walletAddress');
+      const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByLender?walletAddress=${walletAddress}`);
+      if (response.ok) {
+        const data = await response.json();
+        const filteredData = data.filter(offer => offer.lender.toLowerCase() !== walletAddress.toLowerCase() && !offer.borrower);
+        setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching loan offers:', error);
+      setTypeMessage('danger');
+      setMessage('Error al obtener las ofertas de préstamos');
+      setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
+    }
+  };
 
+  useEffect(() => {
     fetchLoanOffers();
   }, []);
 
@@ -193,7 +193,7 @@ const LoanOffers = () => {
   
       const borrowerAddress = localStorage.getItem('walletAddress');
   
-      const response = await fetch('http://localhost:3000/asignarBorrower', {
+      const response = await fetch('https://p2p-lending-api.onrender.com/asignarBorrower', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ const LoanOffers = () => {
       if (response.ok) {
         setTypeMessage('success');
         setMessage('Préstamo aceptado exitosamente.');
-        // Opcionalmente, actualizar el estado de las solicitudes de préstamo aquí
+        fetchLoanOffers();
       } else {
         const data = await response.json();
         throw new Error(data.message || 'Error al actualizar el prestamista en la base de datos');
