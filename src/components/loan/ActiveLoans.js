@@ -93,7 +93,7 @@ const ActiveLoans = () => {
             await provider.send('eth_requestAccounts', []);
             const signer = provider.getSigner();
             const loanContract = new ethers.Contract(
-                "0x451a34a0C165dBdD86f6f4da78700Ffd803D101b",
+                "0x1b30c48B008435b5F16Ba6e4099e4BBF64efe282",
                 LoanContract.abi,
                 signer
             );
@@ -145,7 +145,7 @@ const ActiveLoans = () => {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.duration} meses</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{loan.status}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">
-                                    {loan.status === 'Pending' && (
+                                    {loan.status === 'Pendiente' && (
                                         loan.lender.toLowerCase() === walletAddress.toLowerCase() ? (
                                             <button
                                                 onClick={() => handleFundLoan(loan.loanID, loan.amount)}
