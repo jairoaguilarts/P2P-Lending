@@ -52,7 +52,6 @@ const LoanRequests = () => {
     const { name, value } = e.target;
     setNewLoan({ ...newLoan, [name]: value });
 
-    // Clear the field error when user starts typing
     if (value.trim() !== '') {
       setFieldErrors({
         ...fieldErrors,
@@ -64,7 +63,6 @@ const LoanRequests = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate empty fields
     const errors = {};
     if (!newLoan.amount) errors.amount = true;
     if (!newLoan.interestRate) errors.interestRate = true;
@@ -116,7 +114,6 @@ const LoanRequests = () => {
         isRepaid: false,
       };
 
-      // Save to MongoDB
       const response = await fetch('https://p2p-lending-api.onrender.com/createLoan', {
         method: 'POST',
         headers: {
@@ -127,7 +124,7 @@ const LoanRequests = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setLoanRequests(prevRequests => [...prevRequests, data]); // Actualiza la lista de solicitudes
+        setLoanRequests(prevRequests => [...prevRequests, data]);
         setNewLoan({
           amount: '',
           interestRate: '',
@@ -170,11 +167,47 @@ const LoanRequests = () => {
   };
 
   const acceptLoan = async (loanID) => {
-    // Implement the function to handle loan acceptance
     try {
-      
-      setTypeMessage('success');
-      setMessage('Préstamo aceptado exitosamente.');
+      if (typeof window.ethereum === 'undefined') {
+        Swal.fire({
+          title: 'Error',
+          text: 'MetaMask no está instalado!',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+  
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = provider.getSigner();
+      const loanContract = new ethers.Contract(
+        "0x1e152E7A3027789a6bd8fD657DB69c7Cdb0dfEec",
+        LoanContract.abi,
+        signer
+      );
+  
+      const tx = await loanContract.acceptLoanOffer(loanID);
+      await tx.wait();
+  
+      const lenderAddress = localStorage.getItem('walletAddress');
+  
+      const response = await fetch('http://localhost:3000/asignarLender', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ loanID, lender: lenderAddress }),
+      });
+  
+      if (response.ok) {
+        setTypeMessage('success');
+        setMessage('Préstamo aceptado exitosamente.');
+        // Opcionalmente, actualizar el estado de las solicitudes de préstamo aquí
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al actualizar el prestamista en la base de datos');
+      }
     } catch (error) {
       console.error('Error accepting loan:', error);
       setTypeMessage('danger');
@@ -182,7 +215,6 @@ const LoanRequests = () => {
     }
   };
 
-  // Temporizador para ocultar el mensaje de alerta después de 5 segundos
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => {

@@ -168,11 +168,47 @@ const LoanOffers = () => {
   };
 
   const acceptLoan = async (loanID) => {
-    // Implement the function to handle loan acceptance
     try {
-      
-      setTypeMessage('success');
-      setMessage('Préstamo aceptado exitosamente.');
+      if (typeof window.ethereum === 'undefined') {
+        Swal.fire({
+          title: 'Error',
+          text: 'MetaMask no está instalado!',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
+  
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send('eth_requestAccounts', []);
+      const signer = provider.getSigner();
+      const loanContract = new ethers.Contract(
+        "0x1e152E7A3027789a6bd8fD657DB69c7Cdb0dfEec",
+        LoanContract.abi,
+        signer
+      );
+  
+      const tx = await loanContract.acceptLoanOffer(loanID);
+      await tx.wait();
+  
+      const borrowerAddress = localStorage.getItem('walletAddress');
+  
+      const response = await fetch('http://localhost:3000/asignarBorrower', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ loanID, borrower: borrowerAddress }),
+      });
+  
+      if (response.ok) {
+        setTypeMessage('success');
+        setMessage('Préstamo aceptado exitosamente.');
+        // Opcionalmente, actualizar el estado de las solicitudes de préstamo aquí
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al actualizar el prestamista en la base de datos');
+      }
     } catch (error) {
       console.error('Error accepting loan:', error);
       setTypeMessage('danger');
