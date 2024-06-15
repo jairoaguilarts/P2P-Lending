@@ -98,6 +98,13 @@ const Header = () => {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
+                    <Link to="/active-loans" className={`block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
+                      Prestamos activos
+                    </Link>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
                     <button onClick={handleSignOut} className={`block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 ${active ? 'bg-gray-100 dark:bg-gray-600' : ''}`}>
                       Cerrar Sesion
                     </button>
