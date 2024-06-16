@@ -22,29 +22,29 @@ const MyOffers = () => {
   const [message, setMessage] = useState('');
   const [typeMessage, setTypeMessage] = useState('');
 
-  useEffect(() => {
-    const fetchLoanOffers = async () => {
-      try {
-        const walletAddress = localStorage.getItem('walletAddress');
-        const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByLender?walletAddress=${walletAddress}`);
-        if (response.ok) {
-          const data = await response.json();
-          const filteredData = data.filter(offer => offer.lender.toLowerCase() === walletAddress.toLowerCase()
-            && offer.createdBy.toLowerCase() === walletAddress.toLowerCase()
-            && offer.borrower === null);
-          setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
-        } else {
-          const data = await response.json();
-          throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
-        }
-      } catch (error) {
-        console.error('Error fetching loan offers:', error);
-        setTypeMessage('danger');
-        setMessage('Error al obtener las ofertas de préstamos');
-        setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
+  const fetchLoanOffers = async () => {
+    try {
+      const walletAddress = localStorage.getItem('walletAddress');
+      const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByLender?walletAddress=${walletAddress}`);
+      if (response.ok) {
+        const data = await response.json();
+        const filteredData = data.filter(offer => offer.lender.toLowerCase() === walletAddress.toLowerCase()
+          && offer.createdBy.toLowerCase() === walletAddress.toLowerCase()
+          && offer.borrower === null);
+        setLoanOffers(Array.isArray(filteredData) ? filteredData : []);
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al obtener las ofertas de préstamos');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching loan offers:', error);
+      setTypeMessage('danger');
+      setMessage('Error al obtener las ofertas de préstamos');
+      setLoanOffers([]); // Asegura que loanOffers sea un arreglo vacío en caso de error
+    }
+  };
 
+  useEffect(() => {
     fetchLoanOffers();
   }, []);
 
@@ -164,7 +164,7 @@ const MyOffers = () => {
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const loanContract = new ethers.Contract(
-        "0xe19bB6415f694B4e3aC6B9a411dB6c4AC20AeC85", 
+        "0xe19bB6415f694B4e3aC6B9a411dB6c4AC20AeC85",
         LoanContract.abi,
         signer
       );
@@ -178,6 +178,7 @@ const MyOffers = () => {
 
       if (response.ok) {
         setLoanOffers(loanOffers.filter(request => request.id !== id));
+        fetchLoanOffers();
         setTypeMessage('success');
         setMessage('Oferta de préstamo eliminada exitosamente.');
       } else {
@@ -258,7 +259,7 @@ const MyOffers = () => {
           </form>
         )}
 
-        <h2 className="text-2xl font-bold mt-8 mb-4">Ofertas de Préstamo</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4">Mis Ofertas de Préstamo</h2>
         <table className="min-w-full bg-white dark:bg-gray-900 mt-4">
           <thead className="bg-blue-600">
             <tr>
@@ -278,7 +279,7 @@ const MyOffers = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200">{offer.status}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-200 text-right">
                   <button
-                    onClick={() => handleDelete(offer.id)}
+                    onClick={() => handleDelete(offer.loanID)}
                     className="text-red-600 hover:text-red-900"
                   >
                     Eliminar
