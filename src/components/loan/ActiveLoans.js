@@ -13,6 +13,40 @@ const ActiveLoans = () => {
 
     const walletAddress = localStorage.getItem('walletAddress');
 
+    const fetchBorrowerDetails = useCallback(async (borrower) => {
+        if (!borrowerDetails[borrower]) {
+            try {
+                const response = await fetch(`https://p2p-lending-api.onrender.com/getBorrower/${borrower}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setBorrowerDetails(prevState => ({
+                        ...prevState,
+                        [borrower]: data.name
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching borrower details:', error);
+            }
+        }
+    }, [borrowerDetails]);
+
+    const fetchLenderDetails = useCallback(async (lender) => {
+        if (!lenderDetails[lender]) {
+            try {
+                const response = await fetch(`https://p2p-lending-api.onrender.com/getLender/${lender}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setLenderDetails(prevState => ({
+                        ...prevState,
+                        [lender]: data.name
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching lender details:', error);
+            }
+        }
+    }, [lenderDetails]);
+
     const fetchActiveLoans = useCallback(async () => {
         try {
             const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
@@ -33,45 +67,11 @@ const ActiveLoans = () => {
         } finally {
             setLoading(false);
         }
-    }, [walletAddress]);
+    }, [walletAddress, fetchBorrowerDetails, fetchLenderDetails]);
 
     useEffect(() => {
         fetchActiveLoans();
     }, [fetchActiveLoans]);
-
-    const fetchBorrowerDetails = async (borrower) => {
-        if (!borrowerDetails[borrower]) {
-            try {
-                const response = await fetch(`https://p2p-lending-api.onrender.com/getBorrower/${borrower}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setBorrowerDetails(prevState => ({
-                        ...prevState,
-                        [borrower]: data.name
-                    }));
-                }
-            } catch (error) {
-                console.error('Error fetching borrower details:', error);
-            }
-        }
-    };
-
-    const fetchLenderDetails = async (lender) => {
-        if (!lenderDetails[lender]) {
-            try {
-                const response = await fetch(`https://p2p-lending-api.onrender.com/getLender/${lender}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setLenderDetails(prevState => ({
-                        ...prevState,
-                        [lender]: data.name
-                    }));
-                }
-            } catch (error) {
-                console.error('Error fetching lender details:', error);
-            }
-        }
-    };
 
     const handleFundLoan = async (loanId, amount, borrower, status) => {
         try {
