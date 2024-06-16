@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { MetaMaskProvider } from './context/MetaMaskContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import Dashboard from './components/dashboard/Dashboard';
 import RequestedLoans from './components/loan/LoanRequests';
 import Offers from './components/loan/LoanOffers';
 import MyOffers from './components/loan/MyOffers';
@@ -24,7 +23,6 @@ const AppContent = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/loan-offers" element={<Offers />} />
           <Route path="/requested-loans" element={<RequestedLoans />} />
           <Route path="/my-offers" element={<MyOffers />} />
