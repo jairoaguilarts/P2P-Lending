@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ethers } from 'ethers';
 import Alert from '../Alert';
 
@@ -13,7 +13,7 @@ const ActiveLoans = () => {
 
     const walletAddress = localStorage.getItem('walletAddress');
 
-    const fetchActiveLoans = async () => {
+    const fetchActiveLoans = useCallback(async () => {
         try {
             const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
             if (!response.ok) throw new Error('Error fetching active loans');
@@ -33,11 +33,11 @@ const ActiveLoans = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [walletAddress]);
 
     useEffect(() => {
         fetchActiveLoans();
-    }, [activeLoans]);
+    }, [fetchActiveLoans]);
 
     const fetchBorrowerDetails = async (borrower) => {
         if (!borrowerDetails[borrower]) {
