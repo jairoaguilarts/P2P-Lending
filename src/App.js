@@ -4,7 +4,6 @@ import { MetaMaskProvider } from './context/MetaMaskContext';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Dashboard from './components/dashboard/Dashboard';
-import LoanDetail from './components/loan/LoanDetail';
 import RequestedLoans from './components/loan/LoanRequests';
 import Offers from './components/loan/LoanOffers';
 import MyOffers from './components/loan/MyOffers';
@@ -31,7 +30,6 @@ const AppContent = () => {
           <Route path="/my-offers" element={<MyOffers />} />
           <Route path="/my-requests" element={<MyRequests />} />
           <Route path="/active-loans" element={<ActiveLoans />} />
-          <Route path="/loan-detail/:loanId" element={<LoanDetail />} />
           <Route path="/training" element={<Training />} />
           {/* Agrega más rutas según sea necesario */}
         </Routes>

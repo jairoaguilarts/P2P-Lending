@@ -92,7 +92,7 @@ const LoanOffers = () => {
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const loanContract = new ethers.Contract(
-        "0x1b30c48B008435b5F16Ba6e4099e4BBF64efe282",
+        "0xe19bB6415f694B4e3aC6B9a411dB6c4AC20AeC85",
         LoanContract.abi,
         signer
       );
@@ -183,7 +183,7 @@ const LoanOffers = () => {
       await provider.send('eth_requestAccounts', []);
       const signer = provider.getSigner();
       const loanContract = new ethers.Contract(
-        "0x1b30c48B008435b5F16Ba6e4099e4BBF64efe282",
+        "0xe19bB6415f694B4e3aC6B9a411dB6c4AC20AeC85",
         LoanContract.abi,
         signer
       );

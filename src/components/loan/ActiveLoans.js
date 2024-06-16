@@ -12,35 +12,35 @@ const ActiveLoans = () => {
 
     const walletAddress = localStorage.getItem('walletAddress');
 
-    useEffect(() => {
-        const fetchActiveLoans = async () => {
-            try {
-                const walletAddress = localStorage.getItem('walletAddress');
-                const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    const filteredData = data.filter(
-                        loan => (loan.borrower !== null && loan.lender !== null) &&
-                            (loan.borrower.toLowerCase() === walletAddress.toLowerCase() ||
-                                loan.lender.toLowerCase() === walletAddress.toLowerCase())
-                    );
-                    setActiveLoans(Array.isArray(filteredData) ? filteredData : []);
-                    filteredData.forEach(loan => {
-                        fetchBorrowerDetails(loan.borrower);
-                        fetchLenderDetails(loan.lender);
-                    });
-                } else {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Error al obtener los préstamos activos');
-                }
-            } catch (error) {
-                console.error('Error fetching active loans:', error);
-                setTypeMessage('danger');
-                setMessage('Error al obtener los préstamos activos');
-                setActiveLoans([]); // Asegura que activeLoans sea un arreglo vacío en caso de error
+    const fetchActiveLoans = async () => {
+        try {
+            const walletAddress = localStorage.getItem('walletAddress');
+            const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
+            if (response.ok) {
+                const data = await response.json();
+                const filteredData = data.filter(
+                    loan => (loan.borrower !== null && loan.lender !== null) &&
+                        (loan.borrower.toLowerCase() === walletAddress.toLowerCase() ||
+                            loan.lender.toLowerCase() === walletAddress.toLowerCase())
+                );
+                setActiveLoans(Array.isArray(filteredData) ? filteredData : []);
+                filteredData.forEach(loan => {
+                    fetchBorrowerDetails(loan.borrower);
+                    fetchLenderDetails(loan.lender);
+                });
+            } else {
+                const data = await response.json();
+                throw new Error(data.message || 'Error al obtener los préstamos activos');
             }
-        };
+        } catch (error) {
+            console.error('Error fetching active loans:', error);
+            setTypeMessage('danger');
+            setMessage('Error al obtener los préstamos activos');
+            setActiveLoans([]); // Asegura que activeLoans sea un arreglo vacío en caso de error
+        }
+    };
 
+    useEffect(() => {
         fetchActiveLoans();
     }, []);
 
@@ -82,7 +82,7 @@ const ActiveLoans = () => {
         }
     };
 
-    const handleFundLoan = async (loanId, amount) => {
+    const handleFundLoan = async (loanId, amount, borrower, status) => {
         try {
             if (typeof window.ethereum === 'undefined') {
                 alert('MetaMask no está instalado!');
@@ -92,20 +92,36 @@ const ActiveLoans = () => {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send('eth_requestAccounts', []);
             const signer = provider.getSigner();
-            const loanContract = new ethers.Contract(
-                "0x1b30c48B008435b5F16Ba6e4099e4BBF64efe282",
-                LoanContract.abi,
-                signer
-            );
 
-            const tx = await loanContract.fundLoan(loanId, { value: ethers.utils.parseUnits(amount.toString(), 'ether') });
+            const tx = await signer.sendTransaction({
+                to: borrower,
+                value: ethers.utils.parseUnits(amount.toString(), 'ether')
+            });
 
             await tx.wait();
 
-            // Actualizar el estado de la aplicación después de la financiación exitosa
-            setActiveLoans(activeLoans.map(loan => loan.loanID === loanId ? { ...loan, isFunded: true } : loan));
-            setTypeMessage('success');
-            setMessage('Préstamo financiado exitosamente.');
+            // Actualizar el estado del préstamo en el backend
+            const response = await fetch('https://p2p-lending-api.onrender.com/actualizarStatus', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    loanID: loanId,
+                    isFunded: true,
+                    status: status
+                })
+            });
+
+            if (response.ok) {
+                setTypeMessage('success');
+                setMessage('Préstamo financiado exitosamente.');
+            } else {
+                const data = await response.json();
+                throw new Error(data.message || 'Error al actualizar el estado en la base de datos');
+            }
+
+            fetchActiveLoans();
         } catch (error) {
             console.error('Error funding loan:', error);
             setTypeMessage('danger');
@@ -148,13 +164,32 @@ const ActiveLoans = () => {
                                     {loan.status === 'Pendiente' && (
                                         loan.lender.toLowerCase() === walletAddress.toLowerCase() ? (
                                             <button
-                                                onClick={() => handleFundLoan(loan.loanID, loan.amount)}
+                                                onClick={() => handleFundLoan(loan.loanID, loan.amount, loan.borrower, 'Financiando')}
                                                 className="mt-2 text-white bg-blue-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                                             >
                                                 Financiar
                                             </button>
                                         ) : (
                                             <span className="mt-2 text-gray-500 font-medium">Pendiente de financiación</span>
+                                        )
+                                    )}
+                                    {loan.status === 'Financiado' && loan.isFunded && (
+                                        loan.lender.toLowerCase() === walletAddress.toLowerCase() ? (
+                                            <span className="mt-2 text-gray-500 font-medium">Financiado</span>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleFundLoan(loan.loanID, loan.amount, loan.lender, 'Pagado')}
+                                                className="mt-2 text-white bg-blue-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                                            >
+                                                Pagar
+                                            </button>
+                                        )
+                                    )}
+                                    {loan.status === 'Pagado' && (
+                                        loan.lender.toLowerCase() === walletAddress.toLowerCase() ? (
+                                            <span className="mt-2 text-gray-500 font-medium">Pagado</span>
+                                        ) : (
+                                            <></>
                                         )
                                     )}
                                 </td>
