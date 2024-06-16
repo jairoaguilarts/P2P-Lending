@@ -29,7 +29,9 @@ const MyRequests = () => {
         const response = await fetch(`https://p2p-lending-api.onrender.com/getLoansByBorrower?walletAddress=${walletAddress}`);
         if (response.ok) {
           const data = await response.json();
-          const filteredData = data.filter(request => request.borrower.toLowerCase() === walletAddress.toLowerCase() && request.createdBy.toLowerCase() === walletAddress.toLowerCase() && request.lender === null);
+          const filteredData = data.filter(request => request.borrower.toLowerCase() === walletAddress.toLowerCase() 
+          && request.createdBy.toLowerCase() === walletAddress.toLowerCase() 
+          && request.lender === null);
           setLoanRequests(Array.isArray(filteredData) ? filteredData : []);
         } else {
           const data = await response.json();

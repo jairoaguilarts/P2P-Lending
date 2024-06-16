@@ -114,6 +114,7 @@ const LoanOffers = () => {
         borrower: null,
         isFunded: false,
         isRepaid: false,
+        createdBy: localStorage.getItem('walletAddress'),
       };
 
       // Guardar en MongoDB

@@ -112,6 +112,7 @@ const LoanRequests = () => {
         lender: null,
         isFunded: false,
         isRepaid: false,
+        createdBy: localStorage.getItem('walletAddress'),
       };
 
       const response = await fetch('https://p2p-lending-api.onrender.com/createLoan', {
