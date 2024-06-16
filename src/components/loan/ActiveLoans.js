@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Alert from '../Alert';
-import LoanContract from '../../contracts/LoanContract.json';
 
 const ActiveLoans = () => {
     const [activeLoans, setActiveLoans] = useState([]);
