@@ -37,7 +37,7 @@ const ActiveLoans = () => {
 
     useEffect(() => {
         fetchActiveLoans();
-    }, []);
+    }, [activeLoans]);
 
     const fetchBorrowerDetails = async (borrower) => {
         if (!borrowerDetails[borrower]) {
