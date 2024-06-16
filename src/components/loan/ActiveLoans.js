@@ -129,6 +129,58 @@ const ActiveLoans = () => {
         }
     };
 
+    const handlePayLoan = async (loanId, amount, interestRate, lender) => {
+        try {
+            if (typeof window.ethereum === 'undefined') {
+                alert('MetaMask no está instalado!');
+                return;
+            }
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send('eth_requestAccounts', []);
+            const signer = provider.getSigner();
+
+            const amountNum = parseFloat(amount);
+            const interestRateNum = parseFloat(interestRate);
+
+            const totalAmount = amountNum + (amountNum * interestRateNum / 100);
+
+            const tx = await signer.sendTransaction({
+                to: lender,
+                value: ethers.utils.parseUnits(totalAmount.toString(), 'ether')
+            });
+
+            await tx.wait();
+
+            // Actualizar el estado del préstamo en el backend
+            const response = await fetch('https://p2p-lending-api.onrender.com/actualizarStatus', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    loanID: loanId,
+                    isRepaid: true,
+                    status: 'Pagado'
+                })
+            });
+
+            if (response.ok) {
+                setTypeMessage('success');
+                setMessage('Préstamo pagado exitosamente.');
+            } else {
+                const data = await response.json();
+                throw new Error(data.message || 'Error al actualizar el estado en la base de datos');
+            }
+
+            fetchActiveLoans();
+        } catch (error) {
+            console.error('Error paying loan:', error);
+            setTypeMessage('danger');
+            setMessage('Error al pagar el préstamo');
+        }
+    };
+
     // Temporizador para ocultar el mensaje de alerta después de 5 segundos
     useEffect(() => {
         if (message) {
@@ -178,12 +230,15 @@ const ActiveLoans = () => {
                                             <span className="mt-2 text-gray-500 font-medium">Financiado</span>
                                         ) : (
                                             <button
-                                                onClick={() => handleFundLoan(loan.loanID, loan.amount, loan.lender)}
+                                                onClick={() => handlePayLoan(loan.loanID, loan.amount, loan.interestRate, loan.lender)}
                                                 className="mt-2 text-white bg-blue-600 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
                                             >
                                                 Pagar
                                             </button>
                                         )
+                                    )}
+                                    {loan.status === 'Pagado' && loan.isRepaid && (
+                                        <span className="mt-2 text-gray-500 font-medium">Pagado</span>
                                     )}
                                 </td>
                             </tr>
